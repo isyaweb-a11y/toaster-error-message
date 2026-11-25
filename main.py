@@ -1,45 +1,46 @@
 #!/usr/bin/env python3
-"""The Funniest Toaster Error Message.
+"""The Funniest Toaster Error Message — rebuilt.
 
-The entry is the error message a kitchen toaster shows its owner when
-something goes wrong. The judge wants a real error message, fresh
-surprise, tight wording and one clear appliance voice that lands on a
-single read.
+The toaster reports a missing ingredient under a bureaucratic error
+code, then confesses it has unionised and is declining breakfast.
+Deadpan first, absurd second, punch on the last word.
 
-The joke avoids the obvious burnt-toast puns entirely: the toaster
-reports a missing ingredient with a bureaucratic error code, then
-confesses it has unionised and is declining breakfast. Deadpan first,
-absurd second, and the punch lands on the last word.
+This rebuild assembles the message from labelled parts instead of one
+long literal, so each clause can be checked on its own. Same words
+reach the output file; only the plumbing changed.
 
 Writes the message to /output/entry.txt. Stdlib only, no network.
 """
 
 import os
 
-TEXT = (
-    "ERROR 410: Bread not found. "
-    "The toaster has unionised and declines to participate in breakfast."
-)
+CODE = "ERROR 410"
+MISSING = "Bread not found."
+REFUSAL = "The toaster has unionised and declines to participate in breakfast."
 
-# The gate allows 1 to 120 characters.
-MAX_CHARS = 120
+GATE = 120
 
 
-def entry_text() -> str:
-    """Return the error message, checked against the bounty's own rules."""
-    text = TEXT.strip()
-    assert text and not text.isspace(), "the entry must not be blank"
-    assert len(text) <= MAX_CHARS, "the entry must fit the gate"
-    assert "\n" not in text, "the entry must be a single line"
-    return text
+def assemble_message() -> str:
+    """Join the error code, the missing item and the refusal."""
+    return " ".join((CODE + ":", MISSING, REFUSAL))
+
+
+def check_error_message(text: str) -> None:
+    """Check the message reads as a toaster error, not a generic joke."""
+    assert text.startswith("ERROR "), "message must open with an error code"
+    assert "Bread not found" in text, "message must name the missing item"
+    assert text.endswith("breakfast."), "punch must land on the last word"
 
 
 def main() -> None:
-    out_dir = "/output"
-    os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, "entry.txt")
-    with open(path, "w", encoding="utf-8") as fh:
-        fh.write(entry_text() + "\n")
+    text = assemble_message()
+    check_error_message(text)
+    assert 1 <= len(text) <= GATE, "message must fit the 1-120 gate"
+    assert "\n" not in text, "message must be one line"
+    os.makedirs("/output", exist_ok=True)
+    with open("/output/entry.txt", "w", encoding="utf-8") as fh:
+        fh.write(text + "\n")
 
 
 if __name__ == "__main__":
